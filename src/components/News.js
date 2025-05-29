@@ -38,7 +38,8 @@ export default class News extends Component {
 
             // articles: this.articles,
             articles: [],
-            loading: false
+            loading: false,
+            page: 1,
 
         }
     }
@@ -46,11 +47,37 @@ export default class News extends Component {
     async componentDidMount(){
 
         console.log("News component did mount called");
-        let url = "https://newsapi.org/v2/top-headlines?country=us&category=business&apiKey=5ba5cbdda7cf41e18ef8dda6a99e02e4";
+        let url = `https://newsapi.org/v2/everything?q=apple&from=2025-05-28&to=2025-05-28&sortBy=popularity&apiKey=5ba5cbdda7cf41e18ef8dda6a99e02e4&pageSize=${this.props.pageSize}&page=${this.state.page}`;
         let data = await fetch(url);
         let parsedData = await data.json();
         console.log(parsedData);
         this.setState({
+            articles :parsedData.articles,
+            loading :false
+        })
+    }
+
+    handelNextPage=async()=>{
+      console.log("Next page clicked");
+      let url = `https://newsapi.org/v2/everything?q=apple&from=2025-05-28&to=2025-05-28&sortBy=popularity&apiKey=5ba5cbdda7cf41e18ef8dda6a99e02e4&page=${this.state.page + 1}`;
+        let data = await fetch(url);
+        let parsedData = await data.json();
+        console.log(parsedData);
+        this.setState({
+            page : this.state.page + 1,
+            articles :parsedData.articles,
+            loading :false
+        })
+    }
+
+    handelPrevPage=async()=>{
+      console.log("Previous page clicked");
+      let url = `https://newsapi.org/v2/everything?q=apple&from=2025-05-28&to=2025-05-28&sortBy=popularity&apiKey=5ba5cbdda7cf41e18ef8dda6a99e02e4&page=${this.state.page - 1}`;
+        let data = await fetch(url);
+        let parsedData = await data.json();
+        console.log(parsedData);
+        this.setState({
+            page : this.state.page - 1,
             articles :parsedData.articles,
             loading :false
         })
@@ -66,11 +93,13 @@ export default class News extends Component {
                 <NewsItem title={element.title?element.title.slice(0, 45):""} newsUrl={element.url} description={element.description?element.description.slice(0, 88):""} imageUrl={element.urlToImage} />
             </div>
         })}
-
-            
-
+        </div>
+        <div className="container d-flex justify-content-between" >
+          <button disabled={this.state.page<=1} type="button" className="btn btn-dark" onClick={this.handelPrevPage}>Previous &larr;</button>
+          <button type="button" className="btn btn-dark" onClick={this.handelNextPage}>&rarr; Next</button>
         </div>
       </div>
+
     )
   }
 }
